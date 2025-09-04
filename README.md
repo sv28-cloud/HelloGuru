@@ -1,14 +1,18 @@
-HelloGuru
-HelloGuru is a tutor–student connection platform where:
+# HelloGuru 🎓
 
-Students can search for tutors based on budget, location, and subject.
-Tutors can create profiles with details like subjects taught, hourly rate, experience, and teaching preferences (online/in-person).
-The app prioritizes tutors registered with HelloGuru.
-Features
-🔍 Student Search: Filter tutors by location, budget, and subject.
-👨‍🏫 Tutor Profiles: Showcase experience, hourly rate, and subjects taught.
-📍 Location-Based Matching: Find tutors nearby using location data.
-⭐ Priority Tutors: Highlight registered HelloGuru tutors.
+HelloGuru is a **tutor–student connection platform** that makes it easy for students to find the right tutors based on their needs, and for tutors to showcase their expertise.
+
+---
+
+## 🚀 Features
+
+- 🔍 **Student Search**: Filter tutors by **subject**, **location**, and **budget**.  
+- 👨‍🏫 **Tutor Profiles**: Showcase experience, hourly rate, and subjects taught.  
+- 📍 **Location-Based Matching**: Find tutors nearby using location data.  
+- ⭐ **Priority Tutors**: Highlight tutors registered with HelloGuru for more visibility.  
+- 🤖 **(Optional)** AI Study Plan Generator: Create personalized study schedules powered by AI.  
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -27,23 +31,21 @@ Features
   - Firebase Auth / Passport.js  
 
 - **Map & Location Services**:  
-  - Google Maps API / Leaflet.js
- 
-    -## 📂 Project Structure (example)
--
-HelloGuru/
-│
-├── index.html # Landing page
-├── studentdash.html # Student dashboard
-├── tutordashboard.html # Tutor dashboard
-├── tutor-profile-setup.html # Tutor profile creation
-├── welcome.html # Welcome/login page
-│
-├── style.css # Global styles
-├── studentDashboard.js # Student search & display logic
-├── tutorDashboard.js # (future) Tutor-specific functionality
-│
-└── README.md # Project documentation
----
+  - Google Maps API or Leaflet.js  
 
+---
+## 📂 Project Structure (example)
+```HelloGuru/
+│
+├── index.html               # Landing page
+├── studentdash.html         # Student dashboard
+├── tutordashboard.html      # Tutor dashboard
+├── tutor-profile-setup.html # Tutor profile creation
+├── welcome.html             # Welcome/login page
+│
+├── style.css                # Global styles
+├── studentDashboard.js      # Student search & display logic
+├── tutorDashboard.js        # (future) Tutor-specific functionality
+│
+└── README.md                # Project documentation```
 
