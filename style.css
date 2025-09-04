@@ -1,0 +1,104 @@
+/* style.css */
+
+body {
+  background: linear-gradient(to right, #667eea, #764ba2);
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 24px;
+  color: #333;
+}
+
+select,
+input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+
+button:hover {
+  background-color: #5a67d8;
+}
+
+#loginError {
+  color: #e53e3e;
+  margin-top: 12px;
+  font-size: 14px;
+}
+#loginSuccess {
+  color: #38a169;
+  margin-top: 12px;
+  font-size: 14px;
+
+  .toggle-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.tutor-card {
+  background-color: #f8f8ff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#role {
+  transition: all 0.3s ease;
+}
+#username {
+  transition: all 0.3s ease;
+}
+  font-weight: bold;
+  display: none;
+}
+
+#resultsContainer {
+  max-height: 70vh;   /* or whatever height fits your layout */
+  overflow-y: auto;   /* enable vertical scrolling */
+  margin-top: 15px;
+  padding-right: 5px;
+}
+
+.tutor-card {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}

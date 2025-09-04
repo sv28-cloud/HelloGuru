@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to HelloGuru</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="welcomeMsg">Welcome to HelloGuru!</h1>
+    <p id="nextStep">Redirecting you to your dashboard...</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username');
+    const role = params.get('role');
+
+    document.getElementById('welcomeMsg').textContent = `Welcome to HelloGuru, ${username}!`;
+
+    setTimeout(() => {
+      window.location.href = role === "tutor" ? "tutordashboard.html" : "studentdash.html";
+    }, 3000); // Wait 3 seconds before redirecting
+  </script>
+</body>
+</html>

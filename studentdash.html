@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Dashboard - HelloGuru</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>🎓 Student Dashboard</h2>
+    <p>Find your perfect tutor</p>
+
+    <input id="subjectInput" type="text" placeholder="Subject (e.g., Math)" />
+    <input id="locationInput" type="text" placeholder="Location (e.g., New York)" />
+    <input id="minPriceInput" type="number" placeholder="Min $" />
+    <input id="maxPriceInput" type="number" placeholder="Max $" />
+
+    <button id="searchBtn">🔍 Search Tutors</button>
+
+    <div id="resultsContainer">
+      <h3>Available Tutors</h3>
+      <div id="tutorList"></div>
+    </div>
+  </div>
+
+  <script type="module" src="studentDashboard.js"></script>
+</body>
+</html>

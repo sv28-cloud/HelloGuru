@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HelloGuru Auth</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Sign Up for HelloGuru</h2>
+
+    <div class="toggle-container">
+      <button id="toggleAuthMode">Switch to Login</button>
+    </div>
+
+    <select id="role">
+      <option value="student">Student</option>
+      <option value="tutor">Tutor</option>
+    </select>
+
+    <input type="email" id="email" placeholder="Email" />
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <button id="authBtn">Sign Up</button>
+
+    <p id="loginError"></p>
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendEmailVerification
+  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyB_5VAOdYZURw0VhkQkrNgiibOvj1KfWZQ",
+    authDomain: "helloguru-9332d.firebaseapp.com",
+    projectId: "helloguru-9332d",
+    storageBucket: "helloguru-9332d.appspot.com",
+    messagingSenderId: "572020616156",
+    appId: "1:572020616156:web:0bd60553416d5a2edfbd19",
+    measurementId: "G-KZ7D0DBSE2",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let isLoginMode = false;
+
+  const toggleBtn = document.getElementById('toggleAuthMode');
+  const authBtn = document.getElementById('authBtn');
+  const roleSelect = document.getElementById('role');
+  const heading = document.querySelector('h2');
+  const errorEl = document.getElementById('loginError');
+  const usernameInput = document.getElementById('username');
+
+  toggleBtn.addEventListener('click', () => {
+    isLoginMode = !isLoginMode;
+    heading.textContent = isLoginMode ? 'Login to HelloGuru' : 'Sign Up for HelloGuru';
+    toggleBtn.textContent = isLoginMode ? 'Switch to Sign Up' : 'Switch to Login';
+    authBtn.textContent = isLoginMode ? 'Login' : 'Sign Up';
+    roleSelect.style.display = isLoginMode ? 'none' : 'block';
+    usernameInput.style.display = isLoginMode ? 'none' : 'block';
+    errorEl.innerText = "";
+  });
+
+  authBtn.addEventListener('click', async () => {
+    errorEl.innerText = "";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const role = roleSelect.value;
+    const username = usernameInput.value.trim();
+
+    if (!email || !password) {
+      errorEl.innerText = "Email and password are required.";
+      return;
+    }
+
+    if (!isLoginMode && username.length < 3) {
+      errorEl.innerText = "Username must be at least 3 characters.";
+      return;
+    }
+
+    if (!isLoginMode && !/^(?=.*[!@#$%^&*])(?=.*[0-9]).{7,}$/.test(password)) {
+      errorEl.innerText = "Password must be 7+ characters, with a number & symbol.";
+      return;
+    }
+
+    try {
+      if (isLoginMode) {
+        // LOGIN
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          alert(`Welcome back, ${data.username}!`);
+          const redirectPage = data.role === "tutor" ? "tutordashboard.html" : "studentdash.html";
+          window.location.href = redirectPage;
+        } else {
+          errorEl.innerText = "User profile data not found.";
+        }
+      } else {
+        // SIGN UP
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          username,
+          role,
+          email,
+        });
+
+        await sendEmailVerification(user);
+
+        alert("Account created successfully! Verification email sent.");
+        const redirectPage = role === "tutor" ? "tutor-profile-setup.html" : "studentdash.html";
+        window.location.href = redirectPage;
+      }
+    } catch (err) {
+      if (err.code === "auth/email-already-in-use") {
+        try {
+          // Try logging in if email exists
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCred.user;
+
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            alert(`Welcome back to HelloGuru, ${data.username}!`);
+            const redirectPage = data.role === "tutor" ? "tutordashboard.html" : "studentdash.html";
+            window.location.href = redirectPage;
+          } else {
+            errorEl.innerText = "Email exists, but user data not found.";
+          }
+        } catch (loginErr) {
+          console.error("Auto-login failed:", loginErr);
+          errorEl.innerText = "Email exists, but login failed. Try logging in manually.";
+        }
+      } else {
+        console.error("Auth error:", err);
+        errorEl.innerText = `Error: ${err.message}`;
+      }
+    }
+  });
+  </script>
+</body>
+</html>

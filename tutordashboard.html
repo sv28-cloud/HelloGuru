@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tutor Dashboard - HelloGuru</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      height: 100vh;
+    }
+    .sidebar {
+      background-color: #1c1c2e;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sidebar h2 {
+      color: #ffffff;
+      margin: 0 0 20px 0;
+    }
+    .sidebar nav a {
+      display: block;
+      margin: 8px 0;
+      color: #fff;
+      text-decoration: none;
+    }
+    .sidebar button {
+      margin-top: auto;
+      padding: 10px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .main {
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .card {
+      background-color: #1e1e30;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-box {
+      height: 200px;
+      background: #151522;
+      padding: 10px;
+      overflow-y: auto;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .chat-input {
+      width: 100%;
+      padding: 10px;
+      background: #1c1c2e;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>HelloGuru</h2>
+    <nav>
+      <a href="#messages">Messages</a>
+      <a href="#appointments">Appointments</a>
+      <a href="#profile">Profile</a>
+      <a href="#analytics">Analytics</a>
+    </nav>
+    <button id="logoutBtn">Log Out</button>
+  </div>
+
+  <div class="main">
+    <div id="messages" class="card">
+      <h3>Student Messages</h3>
+      <div class="chat-box" id="chatBox">
+        <!-- Chat messages will appear here -->
+      </div>
+      <input class="chat-input" type="text" placeholder="Type your message..." />
+    </div>
+
+    <div id="appointments" class="card">
+      <h3>Upcoming Appointments</h3>
+      <ul id="appointmentsList"></ul>
+    </div>
+
+    <!-- 🔥 Dynamic Profile Section -->
+    <div id="profile" class="card">
+      <h3>Loading Profile...</h3>
+    </div>
+
+    <!-- 📈 Dynamic Analytics Section -->
+    <div id="analytics" class="card">
+      <h3>Dashboard Analytics</h3>
+    </div>
+  </div>
+
+  <!-- 📦 Firebase Script (at end of body) -->
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, onSnapshot, setDoc, 
+      collection, query, where, onSnapshot as onCollectionSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { app } from './firebaseConfig.js';
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        console.log("No user is currently logged in.");
+        window.location.href = 'index.html';
+        return;
+      }
+
+      console.log("Logged in user UID:", user.uid);
+
+      // ✅ Live Tutor Profile
+      const profileRef = doc(db, "tutors", user.uid);
+      onSnapshot(profileRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.querySelector("#profile").innerHTML = `
+            <h3>Tutor Profile</h3>
+            <p><strong>Subjects:</strong> ${(data.subjects ?? []).join(", ")}</p>
+            <p><strong>Price/hr:</strong> $${data.price ?? "N/A"}</p>
+            <p><strong>Mode:</strong> ${data.mode ?? "N/A"}</p>
+            <p><strong>Experience:</strong> ${data.experience ?? "N/A"}</p>
+            <p><strong>Location:</strong> ${data.location ?? "N/A"}</p>
+            <div class="toggle-switch">
+              <label for="availability">Available:</label>
+              <input type="checkbox" id="availability" ${data.available ? "checked" : ""} />
+            </div>
+          `;
+
+          // ✅ Availability toggle handler
+          document.getElementById("availability").addEventListener("change", async (e) => {
+            await setDoc(profileRef, { available: e.target.checked }, { merge: true });
+            console.log("Availability updated:", e.target.checked);
+          });
+
+          // ✅ Update analytics
+          document.querySelector("#analytics").innerHTML = `
+            <h3>Dashboard Analytics</h3>
+            <p><strong>Sessions:</strong> ${data.sessions ?? 0}</p>
+            <p><strong>Hours Taught:</strong> ${data.hoursTaught ?? 0}</p>
+          `;
+        } else {
+          document.querySelector("#profile").innerHTML = `<p>No profile data found.</p>`;
+        }
+      });
+
+      // 📅 Live Appointments
+      const q = query(collection(db, "appointments"), where("tutorId", "==", user.uid));
+      onCollectionSnapshot(q, (snapshot) => {
+        const list = document.getElementById("appointmentsList");
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const appt = doc.data();
+          const li = document.createElement("li");
+          li.textContent = `${appt.subject ?? "Unknown"} - ${appt.date ?? "TBD"} ${appt.time ?? ""}`;
+          list.appendChild(li);
+        });
+      });
+
+      // 🚪 Log out
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+</body>
+</html>

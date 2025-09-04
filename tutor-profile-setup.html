@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Setup Tutor Profile</title>
+  <style>
+    body { background: #1e1e2f; color: white; font-family: sans-serif; }
+    input, select { display: block; margin-bottom: 10px; padding: 10px; width: 300px; }
+    button { padding: 10px 20px; background: #4f46e5; color: white; border: none; }
+  </style>
+</head>
+<body>
+  <h2>Complete Your Tutor Profile</h2>
+  <form id="tutorProfileForm">
+    <input type="text" placeholder="Full Name" id="name" required>
+    <input type="email" placeholder="Email" id="email" required>
+    <input type="text" placeholder="Subjects (comma separated)" id="subjects" required>
+    <input type="number" placeholder="Price/hr ($)" id="price" required>
+    <input type="text" placeholder="Mode (Online/In-person)" id="mode" required>
+    <input type="text" placeholder="Experience (e.g. 3 years)" id="experience" required>
+    <input type="text" placeholder="Location" id="location" required>
+    <label>Available: <input type="checkbox" id="available"></label>
+    <button type="submit">Save Profile</button>
+  </form>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { app } from './firebaseConfig.js'; // make sure this path is correct
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      console.log("🌍 DOM fully loaded, setting up Firebase auth listener...");
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          console.warn("⚠️ No user signed in, redirecting...");
+          window.location.href = 'index.html';
+          return;
+        }
+
+        console.log("✅ User is signed in:", user.email, "UID:", user.uid, "Verified:", user.emailVerified);
+
+        const form = document.getElementById("tutorProfileForm");
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          console.log("🚀 Submit handler triggered");
+
+          const profileData = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            subjects: document.getElementById("subjects").value.split(',').map(s => s.trim()),
+            price: parseFloat(document.getElementById("price").value),
+            mode: document.getElementById("mode").value,
+            experience: document.getElementById("experience").value,
+            location: document.getElementById("location").value,
+            available: document.getElementById("available").checked,
+            sessions: 0,
+            hoursTaught: 0
+          };
+
+          console.log("📦 Profile data ready to save:", profileData);
+
+          try {
+            await setDoc(doc(db, "tutors", user.uid), profileData);
+            console.log("✅ Tutor profile saved to Firestore");
+            window.location.href = "tutordashboard.html";
+          } catch (err) {
+            console.error("❌ Error saving profile:", err);
+            alert("Failed to save profile: " + err.message);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

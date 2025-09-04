@@ -1,0 +1,81 @@
+<!-- student-onboarding.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Onboarding | HelloGuru</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to HelloGuru 👋</h2>
+    <p>Please complete a few steps to finish onboarding.</p>
+
+    <form id="onboardingForm">
+      <label for="subjects">Subjects you're interested in:</label>
+      <input type="text" id="subjects" placeholder="e.g. Math, JavaScript, SAT Prep" />
+
+      <label for="location">Your Location:</label>
+      <input type="text" id="location" placeholder="e.g. New York, NY" />
+
+      <label for="mode">Preferred Mode:</label>
+      <select id="mode">
+        <option value="in-person">In-Person</option>
+        <option value="online">Online</option>
+        <option value="hybrid">Hybrid</option>
+      </select>
+
+      <button type="submit">Continue to Dashboard</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_5VAOdYZURw0VhkQkrNgiibOvj1KfWZQ",
+      authDomain: "helloguru-9332d.firebaseapp.com",
+      projectId: "helloguru-9332d",
+      storageBucket: "helloguru-9332d.appspot.com",
+      messagingSenderId: "572020616156",
+      appId: "1:572020616156:web:0bd60553416d5a2edfbd19",
+      measurementId: "G-KZ7D0DBSE2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("onboardingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert("No user logged in.");
+        return;
+      }
+
+      const subjects = document.getElementById("subjects").value.trim();
+      const location = document.getElementById("location").value.trim();
+      const mode = document.getElementById("mode").value;
+
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          subjects,
+          location,
+          mode,
+          onboardedAt: new Date()
+        });
+
+        alert("Thanks! Redirecting you to your dashboard...");
+        window.location.href = "studentdash.html";
+      } catch (err) {
+        console.error("Onboarding error:", err);
+        alert("Error saving data. Try again.");
+      }
+    });
+  </script>
+</body>
+</html>
