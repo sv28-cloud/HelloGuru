@@ -21,7 +21,7 @@ HelloGuru is a **tutor–student connection platform** that makes it easy for st
   - HTML, CSS, JavaScript  
   - (React support planned for future versions)
 
-- **Backend** (optional):  
+- **Backend**:  
   - Node.js + Express  
 
 - **Database**:  
